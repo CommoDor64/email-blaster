@@ -6,9 +6,9 @@
   go get ./...
   ```
 ## Run
-Run with default configurations  
+Run with default configurations (add -s to prevent debug print)
   ```
-  go run .
+  go run . -s
   ```
 ## Usage
 the application has couple of configurable flags

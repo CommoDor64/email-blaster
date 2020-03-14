@@ -1,15 +1,16 @@
 package pkg
 
+import "time"
+
 type User struct {
 	ID        int `json:"id" db:"id"`
-	UUID      string `json:"uuid", db:"uuid"`
-	CreatedAt string `json:"created_at" db:"created_at"`
-	UpdatedAt string `json:"updated_at" db:"updated_at"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 	FirstName string `json:"firstname" db:"firstname"`
 	LastName  string `json:"lastname" db:"lastname"`
 	Email     string `json:"email" db:"email"`
-	SentAt    string `json:"sent_at db:"sent_at"`
-	DeletedAt string `json:"deleted_at", db:"deleted_at"`
+	SentAt    time.Time `json:"sent_at db:"sent_at"`
+	DeletedAt time.Time `json:"deleted_at", db:"deleted_at"`
 }
 
 type Payload struct {
