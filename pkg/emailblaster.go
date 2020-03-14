@@ -6,7 +6,7 @@ import (
 
 type emailBlaster struct {
 	Repo        Repo
-	WorkerQueue chan interface{}
+	PayloadQueue chan interface{}
 }
 
 type EmailBlaster interface {
@@ -14,10 +14,10 @@ type EmailBlaster interface {
 }
 
 // NewEmailBlaster returns an emailBlaster struct
-func NewEmailBlaster(repo Repo, workerQueue chan interface{}) *emailBlaster {
+func NewEmailBlaster(repo Repo, payloadQueue chan interface{}) *emailBlaster {
 	return &emailBlaster{
 		Repo:        repo,
-		WorkerQueue: workerQueue,
+		PayloadQueue: payloadQueue,
 	}
 }
 
@@ -31,12 +31,13 @@ func (eb *emailBlaster) Blast(chunkSize int) {
 		}
 		users := eb.Repo.GetUsersWithLimit(i, chunkSize)
 		for _, user := range users {
-			eb.WorkerQueue <- makePayload(user)
+			eb.PayloadQueue <- makePayload(user)
 		}
 		if len(users) < chunkSize {
 			break
 		}
 	}
+	fmt.Println("    ✅ done")
 }
 
 // makePayload is a convenience function that translates

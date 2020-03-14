@@ -8,9 +8,10 @@ import (
 	_ "github.com/lib/pq"
 )
 const (
-	TestDir = "test"
-	DefaultWorkerSizePool = 500
-	DefaultChunkSize = 10000
+	//TestDir = "db"
+	//DBPath = "./db/eb.db"
+	DefaultWorkerSizePool = 10000
+	DefaultChunkSize = 100000
 	DefaultIsSilent = false
 	DefaultRowsNumber = 1000000
 	)
@@ -30,15 +31,13 @@ func main() {
 	flag.Parse()
 
 	// setup and seed database
-	dev.DatabaseSetup(TestDir)
+	dev.DatabaseSetup()
 	fmt.Println("💽 seeds database")
-	if !dev.IsFileExist("test/eb.db") {
-		dev.Seed(rowsNumber)
-	}
+	dev.Seed(rowsNumber)
 
 	// creating all dependencies db, repository, done chan, sender client, worker pool
 	fmt.Println("🤖 creating dependencies")
-	db, _ := pkg.NewDB()
+	db, _ := dev.NewDB()
 	repo := pkg.NewRepo(db)
 	done := make(chan bool)
 	sender := pkg.NewSender(repo, done, pkg.Silent(isSilent))
@@ -53,7 +52,7 @@ func main() {
 
 	// blasting with emails
 	fmt.Println("🔫 blasting emails")
-	emailBlaster := pkg.NewEmailBlaster(repo, workerPool.JobQueue)
+	emailBlaster := pkg.NewEmailBlaster(repo, workerPool.PayloadQueue)
 	emailBlaster.Blast(chunkSize)
 
 	// shutdown
@@ -61,10 +60,8 @@ func main() {
 	workerPool.Shutdown()
 
 	// remove database
-	dev.DatabaseTeardown(TestDir)
+	dev.DatabaseTeardown()
 
 	// exit
 	<-done
-
-
 }

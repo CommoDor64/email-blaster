@@ -50,7 +50,7 @@ func (s sender) Send(userID int, addr string, title string, content string) {
 // sendEmail fakes an email-sender client like SendGrid
 // in this case it will always return nil as error, thus valid
 func (s sender) sendEmail(addr string, title string, content string) error {
-	time.Sleep(time.Millisecond * 5)
+	time.Sleep(time.Millisecond * 500)
 	if !s.silent {
 		fmt.Printf("email sent to %s with title %s and content %s\n", addr, title, content)
 	}

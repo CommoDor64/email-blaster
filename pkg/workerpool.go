@@ -3,7 +3,7 @@ package pkg
 import "sync"
 
 type workerPool struct {
-	JobQueue chan interface{}
+	PayloadQueue chan interface{}
 	Done chan bool
 	wg sync.WaitGroup
 }
@@ -21,7 +21,7 @@ type Job func(interface{})
 // NewWorkerPool returns a struct representing a workerpool
 func NewWorkerPool(done chan bool) *workerPool {
 	return &workerPool{
-		JobQueue: make(chan interface{}),
+		PayloadQueue: make(chan interface{}),
 		Done: done,
 		wg: sync.WaitGroup{},
 	}
@@ -40,7 +40,7 @@ func (wp *workerPool) Run(workerPoolSize int, job Job) {
 
 // Spawn fires up a single worker
 func (wp *workerPool) Spawn(job Job) {
-	for payload := range wp.JobQueue {
+	for payload := range wp.PayloadQueue {
 		job(payload)
 	}
 	wp.wg.Done()
@@ -48,5 +48,5 @@ func (wp *workerPool) Spawn(job Job) {
 
 // Shutdown terminates the workerpool
 func (wp *workerPool) Shutdown() {
-	close(wp.JobQueue)
+	close(wp.PayloadQueue)
 }

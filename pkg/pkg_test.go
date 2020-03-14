@@ -1,35 +1,56 @@
 package pkg
 
 import (
+	"email-blaster/dev"
 	"testing"
 )
+const TestDir = "db"
 
-func TestSend(t *testing.T) {
-	Send("commo64dor@gmail.com", "hello world")
+func TestNewDB(t *testing.T) {
+	db, err := dev.NewDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+
 }
 
-//func TestRepo_GetAllUsers(t *testing.T) {
-//	db, _ := NewDB()
-//	repo := NewRepo(db)
-//	repo.GetAllUsers()
-//}
+func TestNewWorkerPool(t *testing.T) {
+	done := make(chan bool)
 
-//func TestSpawnWorkerNodes(t *testing.T) {
-//	wg := sync.WaitGroup{}
-//	ch := make(chan Payload)
-//	wg.Add(10)
-//	SpawnWorkerNodes(1000, ch, wg)
-//
-//	for i := 0; i < 10; i++ {
-//		payload := Payload{
-//			addr:    fmt.Sprintf("dor%d", i),
-//			content: fmt.Sprintf("hello%d", i),
-//		}
-//		ch <- payload
-//	}
-//
-//}
+	_ = NewWorkerPool(done)
+}
 
-//func TestSeed(t *testing.T) {
-//	Seed()
-//}
+func TestNewRepo(t *testing.T) {
+	db, err := dev.NewDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	_ = NewRepo(db)
+
+}
+
+func TestNewSender(t *testing.T) {
+	db, err := dev.NewDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	repo := NewRepo(db)
+	done := make(chan bool)
+
+	NewSender(repo, done)
+}
+
+func TestNewEmailBlaster(t *testing.T) {
+	db, err := dev.NewDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	done := make(chan bool)
+	workerPool := NewWorkerPool(done)
+	repo := NewRepo(db)
+	_ = NewEmailBlaster(repo, workerPool.PayloadQueue)
+}
