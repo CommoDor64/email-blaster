@@ -32,7 +32,6 @@ The structure itself is simple, as usually I start my project simple and make s 
 more nested struture as I go.  
 In this case there is a single package, namely, the root package **pkg** which consists of:
 
-- db - database wrapper
 - emailblaster - the main component, it utilizes the database and worker nodes in order to blast
 high thoughput email stream
 - repo - all database related functions
@@ -40,8 +39,9 @@ high thoughput email stream
 - types - all types/models for the applications, namely contains a model of the table and one for the business logic
 - workerpool - the workerpool model, helps in creating high throughput stream
 
-Another side package is the **dev** package, which contains development related operations like creating of a testing folder, 
-database setup, teardown and seed/poplulate.
+Another side package is the **dev** package, contains development related functionalities.
+
+- db - contains special database operations such as setup, teardown, seeds
 
 ## Notes
 1) Each goroutine fetches a single payload to be send as email from the corresponding channel, I wanted to update the each row in the database whenever the email is successfuly sent, but in large numbers > 100,000 records and > 100 goroutines, the sqlite client doesn't functions properly. It has a poor support of concurrency.
