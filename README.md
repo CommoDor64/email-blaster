@@ -3,6 +3,7 @@
   ```
   git clone https://github.com/CommoDor64/email-blaster.git
   cd email-blaster
+  go get ./...
   ```
 ## Run
 Run with default configurations  
@@ -24,7 +25,7 @@ with silent mode and populate/seed database with 1 milion rows
   ```
 ## Test
   ```
-  go test pkg
+  go test ./... -v -bench=.
   ```
 ## Structure
 The structure itself is simple, as usually I start my project simple and make s clearer, 
