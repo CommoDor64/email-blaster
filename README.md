@@ -8,7 +8,6 @@
 ## Run
 Run with default configurations  
   ```
-  cd email-blaster
   go run .
   ```
 ## Usage
