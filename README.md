@@ -48,3 +48,9 @@ database setup, teardown and seed/poplulate.
 2) I would extend the model to have another worker nodes that update each record in the database in case of successful mail send
 
 3) I would use postgresql in order to test real production grade throughput
+
+## Design Patterns
+1) concurrency, utilizing message passing to a large pool of worker nodes
+2) dependency injection, and one way dependency, my main package requires all dependency and injects
+it to each one accordingly - Clean Code by Robert C. Martin
+3) functional configuration / options - https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
