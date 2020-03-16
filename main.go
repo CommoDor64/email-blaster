@@ -40,7 +40,13 @@ func main() {
 	db, _ := dev.NewDB()
 	repo := pkg.NewRepo(db)
 	done := make(chan bool)
-	sender := pkg.NewSender(repo, done, pkg.Silent(isSilent))
+	sender := pkg.NewSender(
+		repo,
+		done,
+		pkg.Silent(isSilent),
+		pkg.Latency(500),
+		pkg.UpdateDatabase(false),
+		)
 	workerPool := pkg.NewWorkerPool(done)
 
 	// running workerpool,
