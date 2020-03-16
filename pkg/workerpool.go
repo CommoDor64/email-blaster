@@ -9,7 +9,7 @@ type workerPool struct {
 }
 type WorkerPool interface {
 	Run(workerPoolSize int, job Job)
-	Spawn(job Job)
+	spawn(job Job)
 	Shutdown()
 }
 
@@ -32,14 +32,14 @@ func NewWorkerPool(done chan bool) *workerPool {
 func (wp *workerPool) Run(workerPoolSize int, job Job) {
 	wp.wg.Add(workerPoolSize)
 	for i := 0; i < workerPoolSize; i++ {
-		go wp.Spawn(job)
+		go wp.spawn(job)
 	}
 	wp.wg.Wait()
 	wp.Done <- true
 }
 
 // Spawn fires up a single worker
-func (wp *workerPool) Spawn(job Job) {
+func (wp *workerPool) spawn(job Job) {
 	for payload := range wp.PayloadQueue {
 		job(payload)
 	}

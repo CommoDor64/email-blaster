@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -14,7 +13,7 @@ type sender struct {
 }
 
 type Sender interface {
-	Send(userID int, addr string, title string, content string)
+	Send(userID int, addr string, title string, content string) error
 }
 
 type Option func(s *sender)
@@ -58,14 +57,20 @@ func NewSender(repo Repo, done chan bool, opts ...Option) sender {
 
 // Send is a wrapper around some email-sender client that send an email
 // and updates the database accordingly.
-func (s sender) Send(userID int, addr string, title string, content string) {
+func (s sender) Send(userID int, addr string, title string, content string) error {
 	err := s.sendEmail(addr, title, content)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	if s.updateDatabase {
-		s.Repo.UpdateLastSendTimestamp(userID)
+	if !s.updateDatabase {
+		return nil
 	}
+
+	err = s.Repo.UpdateLastSendTimestamp(userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // sendEmail fakes an email-sender client like SendGrid

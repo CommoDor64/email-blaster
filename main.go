@@ -7,14 +7,16 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 )
+
 const (
 	//TestDir = "db"
 	//DBPath = "./db/eb.db"
 	DefaultWorkerSizePool = 10000
-	DefaultChunkSize = 100000
-	DefaultIsSilent = false
-	DefaultRowsNumber = 1000000
-	)
+	DefaultChunkSize      = 100000
+	DefaultIsSilent       = false
+	DefaultRowsNumber     = 1000000
+)
+
 var (
 	workerPoolSize int
 	chunkSize      int
@@ -46,14 +48,14 @@ func main() {
 		pkg.Silent(isSilent),
 		pkg.Latency(500),
 		pkg.UpdateDatabase(false),
-		)
+	)
 	workerPool := pkg.NewWorkerPool(done)
 
 	// running workerpool,
 	fmt.Println("🔥 starting worker goroutines")
 	go workerPool.Run(workerPoolSize, func(payload interface{}) {
 		p := payload.(pkg.Payload)
-		sender.Send(p.UserID, p.Addr, p.Title, p.Content)
+		_ = sender.Send(p.UserID, p.Addr, p.Title, p.Content)
 	})
 
 	// blasting with emails

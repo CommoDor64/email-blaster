@@ -32,7 +32,7 @@ func TestIntegration(t *testing.T) {
 	fmt.Println("🔥 starting worker goroutines")
 	go workerPool.Run(TestWorkerPoolSize, func(payload interface{}) {
 		p := payload.(pkg.Payload)
-		sender.Send(p.UserID, p.Addr, p.Title, p.Content)
+		_ = sender.Send(p.UserID, p.Addr, p.Title, p.Content)
 	})
 
 	// blasting with emails
