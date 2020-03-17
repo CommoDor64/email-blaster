@@ -9,7 +9,8 @@ a dedicated channel, and set more workers to re-try in case of failure.
 - I would also use postgresql instead of sqlite, as postgres offers much better and faster mutex-ing for highly concurrent
 read/writes, where sqlite can get corrupted if the concurrency is too sever (> 1000 goroutines)
 - A temp database is created and removed during the test or main run
-
+- Tests could be better, I created relatively simple ones, as most of them need integration testing, I tried to cover
+most of the unit test
 ## Install
   ```
   git clone https://github.com/CommoDor64/email-blaster.git
