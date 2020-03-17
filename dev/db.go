@@ -2,16 +2,17 @@ package dev
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
-	DBString = "./db/eb.db?cache=shared&mode=rwc&_journal_mode=WAL"
-	DBPath = "./db/eb.db"
-	TestDir="./db"
+	DBString          = "./db/eb.db?cache=shared&mode=rwc&_journal_mode=WAL"
+	DBPath            = "./db/eb.db"
+	TestDir           = "./db"
 	CREATE_USER_TABLE = `CREATE TABLE IF NOT EXISTS user (
 					id  INTEGER PRIMARY KEY AUTOINCREMENT,
 					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -23,6 +24,12 @@ const (
 					deleted_at
 					);`
 )
+
+type insertPayload struct {
+	Firstname string
+	Lastname  string
+	Email     string
+}
 
 func NewDB() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", DBString)
@@ -52,26 +59,46 @@ func DatabaseTeardown() {
 		log.Fatal(err)
 	}
 }
+
+var insert = "INSERT INTO user (firstname,lastname,email) VALUES %s"
+
+const insertBatchSize = 100
+
 func Seed(rowsNumber int) {
 	db, _ := NewDB()
 	// create table
 	db.Exec(CREATE_USER_TABLE)
 
-	// seed user table
-	stmt, err := db.Prepare("INSERT INTO user (firstname,lastname,email) VALUES (?,?,?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
+	var stmt string
+	var stmtValues []string
+	var stmtArgs []interface{}
+	indexInBatch := 0
 	for i := 0; i < rowsNumber; i++ {
-		if i%(100000) == 0 && i != 0 {
+		if i%(insertBatchSize) == 0 && i != 0 {
+			stmt = fmt.Sprintf(insert, strings.Join(stmtValues, ","))
+			_, err := db.Exec(stmt, stmtArgs...)
+			if err != nil {
+				log.Fatal(err)
+			}
+			stmtValues = stmtValues[:0]
+			indexInBatch = 0
+			stmtArgs = stmtArgs[:0]
+		}
+		if i%100000 == 0 && i != 0 {
 			fmt.Printf("    ✅ %d records written\n", i)
 		}
-		stmt.Exec(
-			fmt.Sprintf("%s%d", "dor", i),
-			fmt.Sprintf("%s%d", "cohen", i),
-			fmt.Sprintf("%s%d@gmail.com", "dor", i))
+		stmtValues = append(stmtValues, fmt.Sprintf("($%d,$%d,$%d)",
+			indexInBatch*3+1,
+			indexInBatch*3+2,
+			indexInBatch*3+3))
+
+		stmtArgs = append(stmtArgs,
+			fmt.Sprintf("dor%d", i),
+			fmt.Sprintf("cohen%d", i),
+			fmt.Sprintf("dorcohen%d@gmail.com", i))
+
+		indexInBatch++
+
 	}
 	fmt.Println("    ✅ done")
 }
