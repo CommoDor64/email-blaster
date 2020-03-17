@@ -1,4 +1,14 @@
 # email-blaster
+Highly concurrent email sender client.
+
+
+## Notes
+- Tested with 10,000,000 records and 1,000,000 goroutines, thus stable at least up to this size
+- There is no proper error handling mechanism for each go-routine. I would extend goroutine to report errors into
+a dedicated channel, and set more workers to re-try in case of failure.
+- I would also use postgresql instead of sqlite, as postgres offers much better and faster mutex-ing for highly concurrent
+read/writes, where sqlite can get corrupted if the concurrency is too sever (> 1000 goroutines)
+- A temp database is created and removed during the test or main run
 
 ## Install
   ```
@@ -13,15 +23,16 @@ Run with default configurations (add -s to prevent debug print)
   ```
 ## Usage
 the application has couple of configurable flags
-- -w - size of worker pool (default 500)
-- -c - chunk size, i.e how many record are pulled from DB on each iteration (default 10000)
+- -w - size of worker pool (default 10,000)
+- -c - chunk size, i.e how many record are pulled from DB on each iteration (default 100,000)
 - -s - is silent, if specified, removes debug output (default false)
-- -r - rows number, defines how many rows the database will be populated with
+- -r - rows number, defines how many rows the database will be populated with (default 1,000,000)
 ## Examples
 This is an example how to blast with 1000 worker goroutines, chunking from database by 100000
 with silent mode and populate/seed database with 1 milion rows
-  ```cd email-blaster
-  go run . -w 1000 -c 100000 -s -r 1000000
+  ```
+  cd email-blaster
+  go run . -w 1000 -c 100000 -r 1000000 -s
   ```
 ## Test
   ```
@@ -42,13 +53,6 @@ high thoughput email stream
 Another side package is the **dev** package, contains development related functionalities.
 
 - db - contains special database operations such as setup, teardown, seeds
-
-## Notes
-1) Each goroutine fetches a single payload to be send as email from the corresponding channel, I wanted to update the each row in the database whenever the email is successfuly sent, but in large numbers > 100,000 records and > 100 goroutines, the sqlite client doesn't functions properly. It has a poor support of concurrency.
-### In hindsight
-2) I would extend the model to have another worker nodes that update each record in the database in case of successful mail send
-
-3) I would use postgresql in order to test real production grade throughput
 
 ## Design Patterns
 1) concurrency, utilizing message passing to a large pool of worker nodes
