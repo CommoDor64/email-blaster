@@ -10,7 +10,7 @@ type emailBlaster struct {
 }
 
 type EmailBlaster interface {
-	Blast(chunkSize int)
+	Blast(chunkSize int) error
 }
 
 // NewEmailBlaster returns an emailBlaster struct
@@ -24,12 +24,15 @@ func NewEmailBlaster(repo Repo, payloadQueue chan interface{}) *emailBlaster {
 // Blast reads users from the database by chunks, creates
 // email payloads and messaging the worker pool via
 // a dedicated channel
-func (eb *emailBlaster) Blast(chunkSize int) {
+func (eb *emailBlaster) Blast(chunkSize int) error {
 	for i := 0; ; i += chunkSize {
 		if i != 0 {
 			fmt.Printf("    ✅ sent %d emails\n", i)
 		}
-		users := eb.Repo.GetUsersWithLimit(i, chunkSize)
+		users, err := eb.Repo.GetUsersWithLimit(i, chunkSize)
+		if err != nil {
+			return err
+		}
 		for _, user := range users {
 			eb.PayloadQueue <- makePayload(user)
 		}
@@ -38,6 +41,7 @@ func (eb *emailBlaster) Blast(chunkSize int) {
 		}
 	}
 	fmt.Println("    ✅ done")
+	return nil
 }
 
 // makePayload is a convenience function that translates

@@ -4,8 +4,8 @@ import (
 	"email-blaster/dev"
 	"testing"
 )
-const TestDir = "db"
 
+// DB
 func TestNewDB(t *testing.T) {
 	db, err := dev.NewDB()
 	if err != nil {
@@ -15,12 +15,23 @@ func TestNewDB(t *testing.T) {
 
 }
 
+// WorkerPool
 func TestNewWorkerPool(t *testing.T) {
 	done := make(chan bool)
 
 	_ = NewWorkerPool(done)
 }
 
+func TestWorkerPool_RunShutDown(t *testing.T) {
+	done := make(chan bool)
+
+	workerPool := NewWorkerPool(done)
+	job := func(interface{}) {}
+	go workerPool.Run(10, job)
+	workerPool.Shutdown()
+}
+
+// Repo
 func TestNewRepo(t *testing.T) {
 	db, err := dev.NewDB()
 	if err != nil {
@@ -31,6 +42,7 @@ func TestNewRepo(t *testing.T) {
 
 }
 
+// Sender
 func TestNewSender(t *testing.T) {
 	db, err := dev.NewDB()
 	if err != nil {
@@ -43,6 +55,7 @@ func TestNewSender(t *testing.T) {
 	NewSender(repo, done)
 }
 
+// EmailBlaster
 func TestNewEmailBlaster(t *testing.T) {
 	db, err := dev.NewDB()
 	if err != nil {

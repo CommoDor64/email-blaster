@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"database/sql"
-	"log"
 )
 
 type repo struct {
@@ -10,7 +9,7 @@ type repo struct {
 }
 
 type Repo interface {
-	GetUsersWithLimit(startIndex int, limit int) []User
+	GetUsersWithLimit(startIndex int, limit int) ([]User, error)
 	UpdateLastSendTimestamp(int) error
 }
 
@@ -23,16 +22,16 @@ func NewRepo(db *sql.DB) repo {
 
 // GetUsersWithLimit selects all users from database according to a limit
 // in order to provide chunks split in case the dataset is too large
-func (r repo) GetUsersWithLimit(startIndex int, limit int) []User {
+func (r repo) GetUsersWithLimit(startIndex int, limit int) ([]User, error) {
 	var users []User
 	stmt, err := r.db.Prepare("SELECT id,firstname,lastname,email FROM user LIMIT ?,?;")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(startIndex, limit)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -41,7 +40,7 @@ func (r repo) GetUsersWithLimit(startIndex int, limit int) []User {
 		users = append(users, user)
 	}
 
-	return users
+	return users, nil
 }
 
 // UpdateLastSendTimestamp updates each user with the now-datetime
