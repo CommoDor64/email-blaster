@@ -1,4 +1,5 @@
 # email-blaster
+
 ## Install
   ```
   git clone https://github.com/CommoDor64/email-blaster.git
