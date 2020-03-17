@@ -15,6 +15,7 @@ const (
 	DefaultChunkSize      = 100000
 	DefaultIsSilent       = false
 	DefaultRowsNumber     = 1000000
+	DefaultLatency        = 500
 )
 
 var (
@@ -46,7 +47,7 @@ func main() {
 		repo,
 		done,
 		pkg.Silent(isSilent),
-		pkg.Latency(500),
+		pkg.Latency(DefaultLatency),
 		pkg.UpdateDatabase(false),
 	)
 	workerPool := pkg.NewWorkerPool(done)
