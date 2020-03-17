@@ -40,7 +40,7 @@ func TestNewRepo(t *testing.T) {
 	db.Close()
 	_ = NewRepo(db)
 
-}:wqq
+}
 
 // Sender
 func TestNewSender(t *testing.T) {
